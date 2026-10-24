@@ -1,0 +1,27 @@
+{
+  "harbor": {
+    "runbooks": {
+      "delivery-guide": "Mailer delays: upstream rate limits appear as HTTP 429. Reduce batch size and inspect the queue before considering a restart.",
+      "service-map": "The message API feeds a queue consumed by mailer workers. Workers send requests to the outbound relay."
+    },
+    "config": {
+      "mailer/settings.py": "MESSAGE_BATCH_SIZE = 200\nRETRY_DELAY_SECONDS = 30\n",
+      "queue/limits.py": "MAX_PENDING_MESSAGES = 5000\n"
+    },
+    "events": [
+      {"service": "mailer", "severity": "info", "text": "2026-10-13T08:00:00Z worker started"},
+      {"service": "mailer", "severity": "error", "text": "2026-10-13T08:02:00Z upstream response 429; retry delayed 30s"},
+      {"service": "mailer", "severity": "warning", "text": "2026-10-13T08:03:00Z queue depth 1800; oldest message age 240s"},
+      {"service": "message-api", "severity": "info", "text": "2026-10-13T08:03:10Z accepted 60 messages"}
+    ],
+    "incidents": {
+      "OPS-42": "Mailer backlog during an upstream quota reduction. Batch size was reduced and queue age returned to normal."
+    }
+  },
+  "ridge": {
+    "runbooks": {"index-guide": "Indexer rebuilds its catalog nightly."},
+    "config": {"indexer/schedule.py": "REBUILD_HOUR = 3\n"},
+    "events": [{"service": "indexer", "severity": "info", "text": "2026-10-13T08:00:00Z catalog ready"}],
+    "incidents": {}
+  }
+}
